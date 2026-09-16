@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Desactiva la Bomba</title>
+<style>
+:root{--bg:#07111f;--panel:#0f1d2e;--line:#27435f;--text:#eef6ff;--muted:#9fb1c7;--cyan:#55d8ff;--red:#ff5361;--green:#53e394;--yellow:#ffd75a}
+*{box-sizing:border-box}body{margin:0;color:var(--text);font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 50% 0,#173858 0,#07111f 45%,#03060d 100%);min-height:100vh}
+.screen{display:none;min-height:100vh;padding:22px}.screen.on{display:flex;align-items:center;justify-content:center}.card,.panel{background:rgba(15,29,46,.95);border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.card{width:min(1100px,100%);padding:28px;text-align:center}.title{font-size:clamp(40px,7vw,72px);margin:8px 0}.sub{color:var(--muted);font-size:18px;line-height:1.5}
+.bomb-big{font-size:130px}.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.rule{background:#091625;border:1px solid #1e3851;border-radius:14px;padding:15px}.rule b{display:block;font-size:23px;margin-bottom:6px}
+.btn{border:0;border-radius:12px;padding:13px 20px;font-weight:900;font-size:17px}.primary{background:var(--cyan);color:#04212b}.ghost{background:#17314b;color:var(--text);border:1px solid #2b5475}.toggle{margin-top:12px;color:var(--muted)}
+.wrap{width:min(1250px,100%)}.top{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;margin-bottom:12px}.stat{text-align:center}.lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}.val{font-size:29px;font-weight:900}.timer{font-size:45px}.timer.warn{color:var(--yellow);animation:pulse .7s infinite alternate}.timer.danger{color:var(--red);animation:pulse .3s infinite alternate}
+@keyframes pulse{to{transform:scale(1.06);opacity:.7}}.bar{height:10px;border:1px solid #1e3851;border-radius:999px;background:#081522;overflow:hidden;margin-bottom:16px}.bar i{display:block;height:100%;background:var(--green);width:0%;transition:.25s}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{padding:20px}.bombbox{background:#081421;border:1px solid #1c344b;border-radius:17px;padding:18px;text-align:center}.bomb{font-size:120px;line-height:1}.fuse{font-size:30px}.wires{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:14px}
+.wire{width:92px;height:48px;border-radius:12px;background:#0d1d2e;color:white;border:3px solid #28445f;font-weight:900}.wire.sel{transform:translateY(-3px);box-shadow:0 7px 22px rgba(255,255,255,.12)}.wire.cut{opacity:.28;filter:grayscale(1);text-decoration:line-through}.wire .stripe{display:block;height:8px;border-radius:6px;margin-bottom:5px}
+.blue .stripe{background:#3d8fff}.red .stripe{background:#ff5361}.yellow .stripe{background:#ffd75a}.green .stripe{background:#53e394}.purple .stripe{background:#b86cff}
+.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#17314b;color:#a9eaff;font-size:12px;font-weight:900}.prompt{font-size:29px;text-align:center;padding:23px;background:#081421;border:1px dashed #345778;border-radius:14px;margin:12px 0}
+.answer{display:flex;gap:9px}.answer input{flex:1;min-width:0;background:#081421;color:var(--text);border:1px solid #335675;border-radius:11px;padding:12px;font-size:19px;outline:none}.answer input:focus{border-color:var(--cyan)}
+.feedback{min-height:31px;padding-top:10px;font-weight:900}.ok{color:var(--green)}.bad{color:var(--red)}
+.paper{margin-top:14px;background:#f2ead7;color:#1d241e;border-radius:14px;padding:12px}.paperhead{display:flex;justify-content:space-between;align-items:center;font-weight:900}.tools{display:flex;gap:7px}.tool{padding:7px 9px;border:1px solid #9c8e6c;border-radius:8px;background:#fffaf0;color:#433a28;font-weight:800}textarea{width:100%;height:240px;margin-top:9px;resize:vertical;background:#fffdf5;color:#182019;border:1px solid #cbb98b;border-radius:10px;padding:12px;font-size:17px}.hint{font-size:12px;color:#6f674d;margin-top:7px}
+.end h1{font-size:52px;margin:8px 0}.endicon{font-size:110px}.results{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.result{background:#091625;border:1px solid #1e3851;border-radius:14px;padding:17px}.result b{display:block;font-size:29px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.rules{grid-template-columns:1fr 1fr}.top{grid-template-columns:1fr 1fr}.top .mid{grid-column:1/-1}.timer{font-size:38px}}
+@media(max-width:520px){.screen{padding:10px}.card,.panel{padding:15px}.rules,.results{grid-template-columns:1fr}.answer{flex-direction:column}.wire{width:84px}.prompt{font-size:24px}}
+</style>
+</head>
+<body>
+
+<section id="start" class="screen on">
+<div class="card">
+  <div class="bomb-big">💣</div>
+  <h1 class="title">DESACTIVA LA BOMBA</h1>
+  <p class="sub">Una bomba matemática ha sido activada. Resuelve los desafíos de <b>factorización</b>, corta los 5 cables y escapa antes de que explote.</p>
+  <div class="rules">
+    <div class="rule"><b>⏱️ 10:00</b>Tiempo límite</div>
+    <div class="rule"><b>❤️❤️❤️</b>3 oportunidades</div>
+    <div class="rule"><b>✂️ 5</b>Cables</div>
+    
+  </div>
+  <p class="sub">Cada partida selecciona <b>5 ejercicios al azar</b>. El color del cable no indica el método. Puedes usar la hoja de cálculo para tus procedimientos.</p>
+  <button class="btn primary" id="startBtn">⚡ COMENZAR</button>
+  <div class="toggle"><label><input type="checkbox" id="sound" checked> 🔊 Sonidos</label></div>
+</div>
+</section>
+
+<section id="game" class="screen">
+<div class="wrap">
+  <div class="top">
+    <div class="stat"><div class="lbl">Oportunidades</div><div class="val" id="lives">❤️❤️❤️</div></div>
+    <div class="stat mid"><div class="lbl">Tiempo restante</div><div class="val timer" id="timer">10:00</div></div>
+    <div class="stat"><div class="lbl">Cables</div><div class="val" id="count">0 / 5</div></div>
+  </div>
+  <div class="bar"><i id="barFill"></i></div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="bombbox">
+        <div class="bomb">💣</div><div class="fuse">🔥</div>
+        <div class="wires" id="wires"></div>
+      </div>
+      <p class="sub" style="font-size:13px;text-align:center">Pulsa un cable para abrir su sobre. Puedes elegir el orden.</p>
+    </div>
+
+    <div class="panel" id="challenge">
+      <span class="tag" id="tag">SOBRE</span>
+      <div class="prompt" id="prompt">Factoriza…</div>
+      <div class="answer">
+        <input id="ans" placeholder="Escribe tu factorización…" autocomplete="off" spellcheck="false">
+        <button class="btn primary" id="check">✂️ CORTAR</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+
+      <div class="paper">
+        <div class="paperhead">
+          <span>📝 Hoja de cálculo</span>
+          <div class="tools">
+            <button class="tool" id="undo">↩️ Deshacer</button>
+            <button class="tool" id="clear">🗑️ Limpiar</button>
+          </div>
+        </div>
+        <textarea id="scratch" placeholder="Haz aquí tus cuentas, pruebas, Ruffini, aspa, etc."></textarea>
+        <div class="hint">La hoja es solo borrador. Lo que escribas aquí no se evalúa.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="end" class="screen">
+<div class="card end">
+  <div class="endicon" id="endIcon">🏆</div>
+  <h1 id="endTitle">¡BOMBA DESACTIVADA!</h1>
+  <p class="sub" id="endMsg"></p>
+  <div class="results">
+    <div class="result"><b id="rCables">5/5</b><span class="sub">Cables</span></div>
+    <div class="result"><b id="rErrors">0</b><span class="sub">Errores</span></div>
+    <div class="result"><b id="rTime">00:00</b><span class="sub">Tiempo restante</span></div>
+  </div>
+  <button class="btn primary" id="again">🔁 JUGAR OTRA VEZ</button>
+</div>
+</section>
+
+<script>
+const BANK=[{"method":"Factor común","expr":"6x² + 12x","answer":"6*x*(x+2)"},{"method":"Factor común","expr":"8x³ - 20x²","answer":"4*x²*(2*x-5)"},{"method":"Factor común","expr":"15x² + 25x","answer":"5*x*(3*x+5)"},{"method":"Factor común","expr":"14x⁴ - 21x²","answer":"7*x²*(2*x²-3)"},{"method":"Factor común","expr":"18x³ + 30x² + 12x","answer":"6*x*(3*x²+5*x+2)"},{"method":"Factor común","expr":"9x⁵ - 27x³","answer":"9*x³*(x²-3)"},{"method":"Factor común","expr":"24x⁴ + 36x³ - 12x²","answer":"12*x²*(2*x²+3*x-1)"},{"method":"Factor común","expr":"35x⁶ - 20x⁴ + 15x²","answer":"5*x²*(7*x⁴-4*x²+3)"},{"method":"Agrupación","expr":"x³ + 2x² + 3x + 6","answer":"(x+2)*(x²+3)"},{"method":"Agrupación","expr":"2x³ + 6x² + x + 3","answer":"(x+3)*(2*x²+1)"},{"method":"Agrupación","expr":"x³ - 4x² + 3x - 12","answer":"(x-4)*(x²+3)"},{"method":"Agrupación","expr":"3x³ + 9x² + 2x + 6","answer":"(x+3)*(3*x²+2)"},{"method":"Agrupación","expr":"4x³ - 8x² + 3x - 6","answer":"(x-2)*(4*x²+3)"},{"method":"Agrupación","expr":"5x³ + 10x² - 2x - 4","answer":"(x+2)*(5*x²-2)"},{"method":"Agrupación","expr":"6x³ - 18x² + x - 3","answer":"(x-3)*(6*x²+1)"},{"method":"Agrupación","expr":"2x³ + 4x² - 5x - 10","answer":"(x+2)*(2*x²-5)"},{"method":"Diferencia de cuadrados","expr":"x² - 25","answer":"(x-5)*(x+5)"},{"method":"Diferencia de cuadrados","expr":"4x² - 49","answer":"(2*x-7)*(2*x+7)"},{"method":"Diferencia de cuadrados","expr":"9x² - 16","answer":"(3*x-4)*(3*x+4)"},{"method":"Diferencia de cuadrados","expr":"25x² - 81","answer":"(5*x-9)*(5*x+9)"},{"method":"Diferencia de cuadrados","expr":"36x² - 121","answer":"(6*x-11)*(6*x+11)"},{"method":"Diferencia de cuadrados","expr":"49x² - 64","answer":"(7*x-8)*(7*x+8)"},{"method":"Diferencia de cuadrados","expr":"100x² - 9","answer":"(10*x-3)*(10*x+3)"},{"method":"Diferencia de cuadrados","expr":"121x² - 144","answer":"(11*x-12)*(11*x+12)"},{"method":"Suma/diferencia de cubos","expr":"x³ - 8","answer":"(x-2)*(x²+2*x+4)"},{"method":"Suma/diferencia de cubos","expr":"x³ + 27","answer":"(x+3)*(x²-3*x+9)"},{"method":"Suma/diferencia de cubos","expr":"8x³ - 125","answer":"(2*x-5)*(4*x²+10*x+25)"},{"method":"Suma/diferencia de cubos","expr":"27x³ + 64","answer":"(3*x+4)*(9*x²-12*x+16)"},{"method":"Suma/diferencia de cubos","expr":"64x³ - 1","answer":"(4*x-1)*(16*x²+4*x+1)"},{"method":"Suma/diferencia de cubos","expr":"125x³ + 216","answer":"(5*x+6)*(25*x²-30*x+36)"},{"method":"Suma/diferencia de cubos","expr":"8x³ + 343","answer":"(2*x+7)*(4*x²-14*x+49)"},{"method":"Suma/diferencia de cubos","expr":"216x³ - 27","answer":"27*(2*x-1)*(4*x²+2*x+1)"},{"method":"Potencias iguales","expr":"x⁵ - 32","answer":"(x-2)*(x⁴+2*x³+4*x²+8*x+16)"},{"method":"Potencias iguales","expr":"x⁵ + 32","answer":"(x+2)*(x⁴-2*x³+4*x²-8*x+16)"},{"method":"Potencias iguales","expr":"x⁵ - 243","answer":"(x-3)*(x⁴+3*x³+9*x²+27*x+81)"},{"method":"Potencias iguales","expr":"x⁵ + 243","answer":"(x+3)*(x⁴-3*x³+9*x²-27*x+81)"},{"method":"Potencias iguales","expr":"x⁷ - 128","answer":"(x-2)*(x⁶+2*x⁵+4*x⁴+8*x³+16*x²+32*x+64)"},{"method":"Potencias iguales","expr":"x⁷ + 128","answer":"(x+2)*(x⁶-2*x⁵+4*x⁴-8*x³+16*x²-32*x+64)"},{"method":"Potencias iguales","expr":"x⁷ - 2187","answer":"(x-3)*(x⁶+3*x⁵+9*x⁴+27*x³+81*x²+243*x+729)"},{"method":"Potencias iguales","expr":"x⁷ + 2187","answer":"(x+3)*(x⁶-3*x⁵+9*x⁴-27*x³+81*x²-243*x+729)"},{"method":"Trinomio cuadrado perfecto","expr":"x² + 6x + 9","answer":"(x+3)²"},{"method":"Trinomio cuadrado perfecto","expr":"x² - 10x + 25","answer":"(x-5)²"},{"method":"Trinomio cuadrado perfecto","expr":"4x² + 12x + 9","answer":"(2*x+3)²"},{"method":"Trinomio cuadrado perfecto","expr":"9x² - 24x + 16","answer":"(3*x-4)²"},{"method":"Trinomio cuadrado perfecto","expr":"25x² + 20x + 4","answer":"(5*x+2)²"},{"method":"Trinomio cuadrado perfecto","expr":"16x² - 40x + 25","answer":"(4*x-5)²"},{"method":"Trinomio cuadrado perfecto","expr":"36x² + 60x + 25","answer":"(6*x+5)²"},{"method":"Trinomio cuadrado perfecto","expr":"49x² - 70x + 25","answer":"(7*x-5)²"},{"method":"Método del aspa","expr":"x² + 5x + 6","answer":"(x+2)*(x+3)"},{"method":"Método del aspa","expr":"x² - x - 6","answer":"(x-3)*(x+2)"},{"method":"Método del aspa","expr":"x² + 7x + 10","answer":"(x+5)*(x+2)"},{"method":"Método del aspa","expr":"x² - 7x + 12","answer":"(x-3)*(x-4)"},{"method":"Método del aspa","expr":"2x² + 7x + 3","answer":"(2*x+1)*(x+3)"},{"method":"Método del aspa","expr":"3x² + 8x + 5","answer":"(3*x+5)*(x+1)"},{"method":"Método del aspa","expr":"4x² - 4x - 15","answer":"(2*x+3)*(2*x-5)"},{"method":"Método del aspa","expr":"6x² + 11x + 3","answer":"(3*x+1)*(2*x+3)"},{"method":"Ruffini","expr":"x³ - 6x² + 11x - 6","answer":"(x-1)*(x-2)*(x-3)"},{"method":"Ruffini","expr":"x³ + 3x² - 4x - 12","answer":"(x+3)*(x-2)*(x+2)"},{"method":"Ruffini","expr":"x³ - 4x² - 7x + 10","answer":"(x-1)*(x-5)*(x+2)"},{"method":"Ruffini","expr":"x³ + x² - 9x - 9","answer":"(x+1)*(x-3)*(x+3)"},{"method":"Ruffini","expr":"x⁴ - 10x³ + 35x² - 50x + 24","answer":"(x-1)*(x-2)*(x-3)*(x-4)"},{"method":"Ruffini","expr":"x⁴ + 2x³ - 7x² - 8x + 12","answer":"(x-1)*(x+2)*(x-2)*(x+3)"},{"method":"Ruffini","expr":"x⁴ + x³ - 7x² - x + 6","answer":"(x-1)*(x-2)*(x+1)*(x+3)"},{"method":"Ruffini","expr":"x⁴ - 5x³ + 20x - 16","answer":"(x-1)*(x-2)*(x-4)*(x+2)"}];
+const COLORS=[
+  {n:"AZUL",c:"blue"},{n:"ROJO",c:"red"},{n:"AMARILLO",c:"yellow"},
+  {n:"VERDE",c:"green"},{n:"MORADO",c:"purple"}
+];
+let G={qs:[],lives:3,errors:0,time:600,active:false,timer:null,cut:[false,false,false,false,false],selected:0,history:[""]};
+
+function $(id){return document.getElementById(id)}
+function screen(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));$(id).classList.add("on")}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function fmt(s){s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+
+// ---------------- AUDIO ----------------
+let AC=null;
+function audio(){if(!$("sound").checked)return null;try{AC=AC||(new(window.AudioContext||window.webkitAudioContext)());if(AC.state==="suspended")AC.resume();return AC}catch(e){return null}}
+function tone(f,d=.1,type="sine",v=.04,delay=0){let c=audio();if(!c)return;let o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,c.currentTime+delay);g.gain.setValueAtTime(v,c.currentTime+delay);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+delay+d);o.connect(g);g.connect(c.destination);o.start(c.currentTime+delay);o.stop(c.currentTime+delay+d+.02)}
+function good(){tone(520,.1);tone(780,.15,"sine",.05,.08)}
+function bad(){tone(180,.2,"sawtooth",.05);tone(110,.24,"sawtooth",.04,.12)}
+function cut(){tone(250,.06,"square",.05);tone(110,.12,"square",.04,.06)}
+function boom(){tone(90,.55,"sawtooth",.08);tone(55,.7,"sawtooth",.06,.15)}
+function win(){[660,780,900,1050].forEach((f,i)=>tone(f,.15,"sine",.05,i*.12))}
+function openS(){tone(420,.08,"square",.035);tone(650,.1,"square",.025,.06)}
+function tick(){tone(880,.05,"square",.025)}
+
+// ---------------- POLINOMIOS / EQUIVALENCIA ----------------
+function gcd(a,b){a=Math.abs(Math.trunc(a));b=Math.abs(Math.trunc(b));while(b){[a,b]=[b,a%b]}return a||1}
+function F(n,d=1){if(d===0)throw 0;if(d<0){n=-n;d=-d}let g=gcd(n,d);return{n:n/g,d:d/g}}
+function A(a,b){return F(a.n*b.d+b.n*a.d,a.d*b.d)}
+function N(a){return a.map(c=>F(-c.n,c.d))}
+function M(a,b){let r=Array(a.length+b.length-1).fill(0).map(()=>F(0));for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++)r[i+j]=A(r[i+j],F(a[i].n*b[j].n,a[i].d*b[j].d));return T(r)}
+function S(a,b){let r=[...a];b.forEach((v,i)=>r[i]=A(r[i]||F(0),N([v])[0]||F(0)));return T(r)}
+function T(a){a=[...a];while(a.length>1&&a[a.length-1].n===0)a.pop();return a}
+function P(a,n){if(n<0||n>12)throw 0;let r=[F(1)];for(let i=0;i<n;i++)r=M(r,a);return r}
+function tok(s){
+ s=s.toLowerCase().replaceAll("²","^2").replaceAll("³","^3").replaceAll("⁴","^4").replaceAll("⁵","^5").replaceAll("⁶","^6").replaceAll("⁷","^7").replace(/[\s\u00a0]/g,"").replace(/−/g,"-");
+ if(!s)throw 0;let o=[],i=0;
+ while(i<s.length){let c=s[i];
+  if(/[0-9.]/.test(c)){let j=i+1;while(j<s.length&&/[0-9.]/.test(s[j]))j++;o.push({t:"n",v:s.slice(i,j)});i=j;continue}
+  if(c==="x"){o.push({t:"x"});i++;continue}
+  if("+-*/^()".includes(c)){o.push({t:c});i++;continue}throw 0
+ }
+ let r=[],end=q=>q&&(q.t==="n"||q.t==="x"||q.t===")"),start=q=>q&&(q.t==="n"||q.t==="x"||q.t==="(");
+ for(let k=0;k<o.length;k++){r.push(o[k]);if(end(o[k])&&start(o[k+1]))r.push({t:"*"})}return r
+}
+function poly(s){
+ let t=tok(s),i=0;
+ function prim(){let z=t[i];if(!z)throw 0;if(z.t==="n"){i++;let v=Number(z.v);if(!isFinite(v))throw 0;return[F(Math.round(v*1000000),1000000)]}if(z.t==="x"){i++;return[F(0),F(1)]}if(z.t==="("){i++;let r=expr();if(!t[i]||t[i].t!==")")throw 0;i++;return r}throw 0}
+ function pow(){let a=prim();while(t[i]&&t[i].t==="^"){i++;let z=t[i++];if(!z||z.t!=="n")throw 0;let n=Number(z.v);if(!Number.isInteger(n))throw 0;a=P(a,n)}return a}
+ function unary(){if(t[i]&&t[i].t==="+"){i++;return unary()}if(t[i]&&t[i].t==="-"){i++;return N(unary())}return pow()}
+ function term(){let a=unary();while(t[i]&&(t[i].t==="*"||t[i].t==="/")){let op=t[i++].t,b=unary();if(op==="*")a=M(a,b);else{if(b.length!==1||b[0].n===0)throw 0;a=a.map(c=>F(c.n*b[0].d,c.d*b[0].n))}}return a}
+ function expr(){let a=term();while(t[i]&&(t[i].t==="+"||t[i].t==="-")){let op=t[i++].t,b=term();a=op==="+"?add(a,b):S(a,b)}return a}
+ function add(a,b){let r=Array(Math.max(a.length,b.length)).fill(0).map(()=>F(0));for(let k=0;k<r.length;k++)r[k]=A(a[k]||F(0),b[k]||F(0));return T(r)}
+ let r=expr();if(i!==t.length)throw 0;return T(r)
+}
+function same(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i].n!==b[i].n||a[i].d!==b[i].d)return false;return true}
+function likelyFactorized(s){
+  const z=s.toLowerCase().replace(/\s+/g,"").replace(/−/g,"-");
+  // A valid factorized answer must show a genuine factor structure:
+  // e.g. (x+3)^2, (x+2)(x+3), 6x(x+2), 3*(x-2)*...
+  const hasParentheses=/\([^()]+\)/.test(z);
+  const hasFactorJoin=/\)\s*\(|\)\^\d|\)\*|[0-9x]\(/.test(z);
+  return hasParentheses && hasFactorJoin;
+}
+function equiv(u,e,original){
+  // Mathematical equivalence is necessary, but an unfactored copy of the
+  // original expression is not considered a factorization.
+  if(!likelyFactorized(u)) return false;
+  return same(poly(u),poly(e));
+}
+
+// ---------------- GAME ----------------
+function buildWires(){
+ $("wires").innerHTML="";
+ COLORS.forEach((c,i)=>{
+   let b=document.createElement("button");b.className="wire "+c.c;
+   b.innerHTML='<span class="stripe"></span>'+c.n;
+   b.onclick=()=>pick(i);$("wires").appendChild(b);
+ });updateWires()
+}
+function updateWires(){
+ document.querySelectorAll(".wire").forEach((b,i)=>{b.classList.toggle("cut",G.cut[i]);b.classList.toggle("sel",i===G.selected&&!G.cut[i])});
+ let n=G.cut.filter(Boolean).length;$("count").textContent=n+" / 5";$("barFill").style.width=(n*20)+"%"
+}
+function pick(i){if(!G.active||G.cut[i])return;G.selected=i;openS();load(i);updateWires()}
+function load(i){
+ let q=G.qs[i];$("tag").textContent="SOBRE "+COLORS[i].n;$("prompt").textContent="Factoriza:  "+q.expr;$("ans").value="";$("feedback").textContent="";$("feedback").className="feedback";$("ans").focus()
+}
+function updateTop(){
+ $("lives").textContent="❤️".repeat(G.lives)+"🖤".repeat(3-G.lives);
+ $("timer").textContent=fmt(G.time);$("timer").className="val timer"+(G.time<=30?" danger":G.time<=120?" warn":"")
+}
+function start(){
+ audio();clearInterval(G.timer);
+ G={qs:shuffle(BANK).slice(0,5),lives:3,errors:0,time:600,active:true,timer:null,cut:[false,false,false,false,false],selected:0,history:[""]};
+ buildWires();updateWires();updateTop();screen("game");load(0);$("scratch").value="";
+ G.timer=setInterval(()=>{if(!G.active)return;G.time--;updateTop();if(G.time>0&&G.time<=10)tick();if(G.time<=0)finish(false,"⏰ Se terminó el tiempo. La bomba explotó.")},1000)
+}
+function check(){
+ if(!G.active)return;let u=$("ans").value.trim();
+ if(!u){$("feedback").textContent="Escribe una respuesta primero.";$("feedback").className="feedback bad";bad();return}
+ try{
+   if(equiv(u,G.qs[G.selected].answer,G.qs[G.selected].expr)){
+     G.cut[G.selected]=true;$("feedback").textContent="✅ ¡Correcto! La expresión es equivalente. Cable cortado.";$("feedback").className="feedback ok";good();setTimeout(cut,120);updateWires();updateTop();
+     if(G.cut.every(Boolean)){finish(true,"🏆 Has resuelto los 5 desafíos y desactivado la bomba.");return}
+     let n=G.cut.findIndex(v=>!v);G.selected=n;setTimeout(()=>load(n),350)
+   }else{
+     G.lives--;G.errors++;$("feedback").textContent="❌ Incorrecto. Te quedan "+G.lives+" oportunidades.";$("feedback").className="feedback bad";bad();
+     $("challenge").animate([{transform:"translateX(0)"},{transform:"translateX(-7px)"},{transform:"translateX(7px)"},{transform:"translateX(0)"}],{duration:350});updateTop();
+     if(G.lives<=0)finish(false,"💥 Has perdido las 3 oportunidades. La bomba explotó.")
+   }
+ }catch(e){$("feedback").textContent="⚠️ No pude interpretar esa expresión. Usa x, paréntesis y exponentes como x^2.";$("feedback").className="feedback bad";bad()}
+}
+function finish(win,msg){
+ if(!G.active)return;G.active=false;clearInterval(G.timer);win?win():boom();
+ let n=G.cut.filter(Boolean).length;$("endIcon").textContent=win?"🏆":"💥";$("endTitle").textContent=win?"¡BOMBA DESACTIVADA!":"¡BOOOOM!";
+ $("endMsg").textContent=msg;$("rCables").textContent=n+"/5";$("rErrors").textContent=G.errors;$("rTime").textContent=fmt(G.time);screen("end")
+}
+$("startBtn").onclick=start;$("again").onclick=start;$("check").onclick=check;$("ans").addEventListener("keydown",e=>{if(e.key==="Enter")check()});
+$("scratch").addEventListener("input",()=>{G.history.push($("scratch").value);if(G.history.length>40)G.history.shift()});
+$("undo").onclick=()=>{if(G.history.length<2){$("scratch").value="";return}G.history.pop();$("scratch").value=G.history[G.history.length-1]||""};
+$("clear").onclick=()=>{$("scratch").value=""};
+</script>
+</body>
+</html>
